@@ -1,0 +1,37 @@
+[
+  {
+    "usuario": "Carlos",
+    "fecha": "2026-06-24 18:30:12",
+    "aciertos": 8,
+    "desaciertos": 2,
+    "puntaje": 80
+  },
+  {
+    "usuario": "Lucia",
+    "fecha": "2026-06-24 19:15:45",
+    "aciertos": 10,
+    "desaciertos": 0,
+    "puntaje": 100
+  },
+  {
+    "usuario": "joel",
+    "fecha": "2026-06-24 19:48:06",
+    "aciertos": 0,
+    "desaciertos": 0,
+    "puntaje": 0
+  },
+  {
+    "usuario": "joel",
+    "fecha": "2026-06-24 20:11:09",
+    "aciertos": 3,
+    "desaciertos": 1,
+    "puntaje": 30
+  },
+  {
+    "usuario": "joel",
+    "fecha": "2026-06-24 21:29:05",
+    "aciertos": 4,
+    "desaciertos": 0,
+    "puntaje": 40
+  }
+]

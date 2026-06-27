@@ -1,0 +1,14 @@
+path: C:/Users/joels/Downloads/ModeloFigura/shape detection.v2i.yolo26
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 4
+names: ['circle', 'cross', 'square', 'triangle']
+
+roboflow:
+  workspace: yolo-projects-ked4j
+  project: shape-detection-tcr6b
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yolo-projects-ked4j/shape-detection-tcr6b/dataset/2
