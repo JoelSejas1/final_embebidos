@@ -1,9 +1,7 @@
 import machine
 import time
 
-# ============================================================================
-# DRIVER NATIVO PARA LCD 16x2 EN MODO 4 BITS
-# ============================================================================
+
 class LcdParalelo:
     def __init__(self, rs, e, d4, d5, d6, d7):
         self.rs = machine.Pin(rs, machine.Pin.OUT)
@@ -68,10 +66,7 @@ class LcdParalelo:
         for char in string:
             self.send_data(ord(char))
 
-# ============================================================================
-# CONFIGURACIÓN DEL SERVOLMOTOR (MECANISMO DE RECOMPENSA)
-# ============================================================================
-# Configuramos el pin GP12 como salida PWM a 50Hz para controlar el servo
+
 pin_servo = machine.Pin(12)
 servo = machine.PWM(pin_servo)
 servo.freq(50)
@@ -79,33 +74,28 @@ servo.freq(50)
 def entregar_recompensa_dulce():
     print("🍬 Mecanismo: ¡Entregando dulce/premio físico!")
     
-    # 1. Aseguramos que el canal PWM esté enviando señal activa
+
     servo.freq(50)
     
-    # 2. Mover a ~90 grados para abrir la compuerta
-    servo.duty_u16(4915) 
+    servo.duty_u16(6143) 
     time.sleep(1.2) 
     
-    # 3. Volver a 0 grados para cerrar la compuerta
-    servo.duty_u16(1638)
-    time.sleep(0.5) # Esperamos a que físicamente termine de llegar a 0 grados
-    
-    # 4. TRUCO DE MECATRÓNICA: Desactivamos el Duty Cycle (poniéndolo en 0)
-    # Al cortar la señal PWM, el servo deja de hacer fuerza y la vibración desaparece al 100%
-    servo.duty_u16(0)
-    print("🍬 Mecanismo: Compuerta cerrada y servo relajado.")
 
-# Aplica también el truco al inicio del script para que arranque en paz:
+    servo.duty_u16(1638)
+    time.sleep(0.5) 
+    
+
+    servo.duty_u16(0)
+    print("Mecanismo: Compuerta cerrada y servo relajado.")
+
+
 servo.duty_u16(1638)
 time.sleep(0.5)
-servo.duty_u16(0) # Apagado inicial
+servo.duty_u16(0) 
 
-# Asegurar posición inicial cerrada del servo al arrancar la Pico
+
 servo.duty_u16(1638)
 
-# ============================================================================
-# INICIALIZACIÓN DE COMPONENTES ADICIONALES Y UART
-# ============================================================================
 try:
     lcd = LcdParalelo(rs=16, e=17, d4=18, d5=19, d6=20, d7=21)
     lcd.put_str("  SISTEMA  ", 0)
@@ -114,12 +104,12 @@ try:
     lcd.clear()
     lcd.put_str("Aciertos: 0", 0)
     lcd.put_str("Esperando...", 1)
-    print("📺 LCD Paralelo: Configurado exitosamente.")
+    print("LCD Paralelo: Configurado exitosamente.")
 except Exception as e:
-    print(f"⚠️ LCD Paralelo: Error de pantalla: {e}")
+    print(f"LCD Paralelo: Error de pantalla: {e}")
     lcd = None
 
-# UART0 para la comunicación con la Raspberry Pi 4
+
 uart = machine.UART(0, baudrate=9600, tx=machine.Pin(0), rx=machine.Pin(1))
 
 pin_correcto = machine.Pin(14, machine.Pin.OUT)
@@ -127,67 +117,65 @@ pin_incorrecto = machine.Pin(15, machine.Pin.OUT)
 pin_correcto.value(0)
 pin_incorrecto.value(0)
 
-# Contador de aciertos global de la sesión
+
 contador_aciertos = 0
 
-print("📡 Raspberry Pi Pico lista, escuchando UART0 y controlando Servo...")
+print("Raspberry Pi Pico lista, escuchando UART0 y controlando Servo...")
 print("----------------------------------------------------------------")
 
-# ============================================================================
-# BUCLE PRINCIPAL DE OPERACIÓN
-# ============================================================================
+
 while True:
     if uart.any():
         try:
             dato = uart.read(1).decode('utf-8')
-            print(f"📥 Mensaje UART Recibido: '{dato}'")
+            print(f"Mensaje UART Recibido: '{dato}'")
             
-            # --- CASO 1 o 3: Respuestas Correctas ---
+            
             if dato == '1' or dato == '3':
                 contador_aciertos += 1
-                print(f"🟩 Correcto. Total aciertos: {contador_aciertos}")
+                print(f"Correcto. Total aciertos: {contador_aciertos}")
                 
-                # Mensaje especial en el LCD si es una Súper Racha (dato '3')
+                
                 if lcd:
                     lcd.clear()
                     lcd.put_str(f"Aciertos: {contador_aciertos}", 0)
                     if dato == '3':
-                        lcd.put_str("¡SUPER RACHA! 🏆", 1)
+                        lcd.put_str("SUPER RACHA", 1)
                     else:
-                        lcd.put_str("¡Muy Bien! 🎉", 1)
+                        lcd.put_str("Muy Bien", 1)
                 
-                # Activación de LEDs según el caso
+                
                 if dato == '1':
-                    # Parpadeo de racha
+                    
                     pin_correcto.value(1)
                     time.sleep(1.5)
                     pin_correcto.value(0)
 
                 
-                # 🍬 EVALUACIÓN DE RECOMPENSA FÍSICA: Cada 5 aciertos (5, 10, 15...)
+                
                 if contador_aciertos % 5 == 0:
                     if lcd:
                         lcd.move_to(0, 1) if hasattr(lcd, 'move_to') else None
                         lcd.clear()
                         lcd.put_str(f"Aciertos: {contador_aciertos}", 0)
-                        lcd.put_str("¡TOMA UN DULCE!🍬", 1)
+                        lcd.put_str("TOMA UN DULCE", 1)
                     
-                    # Llamamos a la función que mueve físicamente el servo
+                
                     entregar_recompensa_dulce()
                 
-                # Volver a poner la pantalla en estado de espera
+      
                 if lcd:
                     lcd.clear()
                     lcd.put_str(f"Aciertos: {contador_aciertos}", 0)
                     lcd.put_str("Siguiente reto..", 1)
                 
-            # --- CASO 2: Respuesta Incorrecta ---
+           
             elif dato == '0':
-                print("🟥 Incorrecto. Manteniendo contador.")
+                print("Incorrecto. Manteniendo contador.")
                 if lcd:
                     lcd.clear()
                     lcd.put_str(f"Aciertos: {contador_aciertos}", 0)
-                    lcd.put_str("¡Intenta de nuevo!", 1)
+                    lcd.put_str("Intenta de nuevo", 1)
                 
                 pin_incorrecto.value(1)
                 time.sleep(1.5)
@@ -199,11 +187,11 @@ while True:
                     lcd.put_str("Siguiente reto..", 1)
             
             else:
-                print(f"⚠️ Carácter desconocido recibido: '{dato}'")
+                print(f"Carácter desconocido recibido: '{dato}'")
                 
             print("----------------------------------------------------------------")
             
         except Exception as e:
-            print(f"❌ Error en la rutina de control de actuadores: {e}")
+            print(f"Error en la rutina de control de actuadores: {e}")
             
     time.sleep(0.01)

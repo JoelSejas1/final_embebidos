@@ -5,21 +5,21 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-# --- Precarga de Librerías Críticas (Previene picos de CPU y congelamientos) ---
+
 import cv2
 import random
 import glob
 from PIL import Image, ImageTk
 from ultralytics import YOLO
 
-# --- Configuración UART (Raspberry Pi 4) ---
+
 try:
     import serial
     SERIAL_AVAILABLE = True
 except ImportError:
     SERIAL_AVAILABLE = False
 
-# --- Variables Globales ---
+
 USUARIO_ACTUAL = ""
 ACIERTOS = 0
 DESACIERTOS = 0
@@ -72,12 +72,12 @@ class App(tk.Tk):
                 self.ser = serial.Serial('/dev/serial0', 9600, timeout=1)
                 print("📡 UART: Puerto /dev/serial0 abierto correctamente a 9600 baudios.")
             except Exception as e:
-                print(f"⚠️ UART: No se pudo abrir /dev/serial0 ({e}). Se continuará sin UART.")
+                print(f"UART: No se pudo abrir /dev/serial0 ({e}). Se continuará sin UART.")
         else:
-            print("⚠️ UART: El módulo 'pyserial' no está instalado. Se continuará sin UART.")
+            print("UART: El módulo 'pyserial' no está instalado. Se continuará sin UART.")
             
-        # Instanciar modelos ONNX de manera global al encender la app
-        print("🔮 Inicializando motores de IA en segundo plano...")
+
+        print("Inicializando motores de IA en segundo plano...")
         self.modelo_digitos = YOLO("best_num.onnx", task="detect")
         self.yolo_model = None
         self.bucle_camara_iniciado = False
@@ -88,17 +88,17 @@ class App(tk.Tk):
         global ACIERTOS
         if hasattr(self, 'ser') and self.ser is not None:
             try:
-                # Si es correcto y ya acumuló más de 5 aciertos totales en la sesión, manda un '3'
+                
                 if correcto and ACIERTOS > 5:
                     dato = b'3'
-                    print(f"🏆 ¡Racha de Campeón! Enviando '3' por UART (Aciertos totales: {ACIERTOS})")
+                    print(f"¡Racha de Campeón! Enviando '3' por UART (Aciertos totales: {ACIERTOS})")
                 else:
                     dato = b'1' if correcto else b'0'
                     
                 self.ser.write(dato)
-                print(f"📡 UART: Enviado '{dato.decode()}' (correcto={correcto})")
+                print(f"UART: Enviado '{dato.decode()}' (correcto={correcto})")
             except Exception as e:
-                print(f"⚠️ UART: Error al enviar datos: {e}")
+                print(f" UART: Error al enviar datos: {e}")
 
     def limpiar_pantalla(self):
         self.detener_stream_camara()
@@ -180,10 +180,10 @@ class App(tk.Tk):
         self.entry_usuario = tk.Entry(card, font=("Helvetica", 14), bg="#383842", fg="#ffffff", insertbackground="white", borderwidth=0, highlightthickness=1, highlightbackground="#4a4a5a", highlightcolor="#007acc")
         self.entry_usuario.pack(pady=10, ipady=5, ipadx=10)
         
-        btn_ingresar = ttk.Button(card, text="Iniciar Sesión 🚀", command=self.registrar_usuario)
+        btn_ingresar = ttk.Button(card, text="Iniciar Sesión", command=self.registrar_usuario)
         btn_ingresar.pack(pady=20)
         
-        btn_historial = ttk.Button(self.container, text="Ver Historial de Sesiones 📊", style="Secundario.TButton", command=self.mostrar_pantalla_historial)
+        btn_historial = ttk.Button(self.container, text="Ver Historial de Sesiones", style="Secundario.TButton", command=self.mostrar_pantalla_historial)
         btn_historial.pack(pady=20)
 
     def registrar_usuario(self):
@@ -200,7 +200,7 @@ class App(tk.Tk):
 
     def mostrar_pantalla_plataforma(self):
         self.limpiar_pantalla()
-        lbl_titulo = ttk.Label(self.container, text=f"¡Bienvenido, {USUARIO_ACTUAL}! 👋", style="Titulo.TLabel", anchor="center")
+        lbl_titulo = ttk.Label(self.container, text=f"¡Bienvenido, {USUARIO_ACTUAL}!", style="Titulo.TLabel", anchor="center")
         lbl_titulo.pack(pady=(20, 5))
         lbl_sub = ttk.Label(self.container, text="Elige una de las siguientes actividades para comenzar:", style="Subtitulo.TLabel", anchor="center")
         lbl_sub.pack(pady=(0, 30))
@@ -214,7 +214,7 @@ class App(tk.Tk):
         lbl_modo1.pack(pady=15)
         lbl_desc1 = ttk.Label(card1, text="Resuelve operaciones matemáticas en la pizarra utilizando un marcador y deja que la cámara evalúe tu respuesta.", font=("Helvetica", 11), background="#282830", wraplength=350, justify="center")
         lbl_desc1.pack(pady=15, padx=10)
-        btn_modo1 = ttk.Button(card1, text="Jugar Modo 1 ✏️", style="Modo.TButton", command=self.mostrar_modo_1)
+        btn_modo1 = ttk.Button(card1, text="Jugar Modo 1", style="Modo.TButton", command=self.mostrar_modo_1)
         btn_modo1.pack(pady=20)
         
         card2 = ttk.Frame(modos_frame, style="Card.TFrame")
@@ -223,12 +223,12 @@ class App(tk.Tk):
         lbl_modo2.pack(pady=15)
         lbl_desc2 = ttk.Label(card2, text="Cuenta los objetos que aparecen en la pantalla, escribe el número en la pizarra y comprueba si tu conteo es correcto.", font=("Helvetica", 11), background="#282830", wraplength=350, justify="center")
         lbl_desc2.pack(pady=15, padx=10)
-        btn_modo2 = ttk.Button(card2, text="Jugar Modo 2 🍎", style="Modo.TButton", command=self.mostrar_modo_2)
+        btn_modo2 = ttk.Button(card2, text="Jugar Modo 2", style="Modo.TButton", command=self.mostrar_modo_2)
         btn_modo2.pack(pady=20)
         
         btn_frame = ttk.Frame(self.container)
         btn_frame.pack(pady=30, fill="x")
-        btn_cerrar = ttk.Button(btn_frame, text="Terminar y Guardar Sesión 💾", style="Secundario.TButton", command=self.guardar_y_cerrar_sesion)
+        btn_cerrar = ttk.Button(btn_frame, text="Terminar y Guardar Sesión", style="Secundario.TButton", command=self.guardar_y_cerrar_sesion)
         btn_cerrar.pack(side="bottom", pady=10)
 
     def generar_operacion_matematica(self):
@@ -298,10 +298,10 @@ class App(tk.Tk):
         btn_frame_ia = ttk.Frame(left_frame, style="Card.TFrame")
         btn_frame_ia.pack(pady=5)
         
-        btn_evaluar_cam = ttk.Button(btn_frame_ia, text="Capturar Pizarra 📸", style="TButton", command=self.evaluar_pizarra_camara)
+        btn_evaluar_cam = ttk.Button(btn_frame_ia, text="Capturar Pizarra", style="TButton", command=self.evaluar_pizarra_camara)
         btn_evaluar_cam.pack(side="left", padx=5)
         
-        btn_evaluar_file = ttk.Button(btn_frame_ia, text="Cargar Archivo 📁", style="Secundario.TButton", command=self.seleccionar_imagen_evaluar_modo1)
+        btn_evaluar_file = ttk.Button(btn_frame_ia, text="Cargar Archivo", style="Secundario.TButton", command=self.seleccionar_imagen_evaluar_modo1)
         btn_evaluar_file.pack(side="left", padx=5)
         
         lbl_simulacion = ttk.Label(left_frame, text="Simulación manual por teclado:", font=("Helvetica", 10), background="#282830", foreground="#8a8a95")
@@ -314,10 +314,10 @@ class App(tk.Tk):
         self.entry_respuesta_sim.pack(side="left", padx=5, ipady=3)
         self.entry_respuesta_sim.bind("<Return>", lambda event: self.verificar_respuesta_sim())
         
-        btn_verificar = ttk.Button(sim_frame, text="Verificar ✔️", style="TButton", command=self.verificar_respuesta_sim)
+        btn_verificar = ttk.Button(sim_frame, text="Verificar", style="TButton", command=self.verificar_respuesta_sim)
         btn_verificar.pack(side="left", padx=5)
         
-        btn_nuevo = ttk.Button(left_frame, text="Nuevo Ejercicio 🔄", style="Secundario.TButton", command=lambda: self.nuevo_ejercicio_modo1(iniciar=False))
+        btn_nuevo = ttk.Button(left_frame, text="Nuevo Ejercicio", style="Secundario.TButton", command=lambda: self.nuevo_ejercicio_modo1(iniciar=False))
         btn_nuevo.pack(pady=10)
         
         right_frame = ttk.Frame(self.card_modo1, style="Card.TFrame")
@@ -437,7 +437,7 @@ class App(tk.Tk):
             ACIERTOS += 1  # Suma previa para que la condicional UART verifique el valor correcto en tiempo real
             self.enviar_resultado_uart(True)
             self.lbl_operacion.config(foreground="#26a69a")
-            messagebox.showinfo("¡Correcto! 🎉", f"La IA detectó el número {numero_detectado}.\n¡Respuesta correcta!")
+            messagebox.showinfo("¡Correcto!", f"La IA detectó el número {numero_detectado}.\n¡Respuesta correcta!")
             
             a, op, b, res = self.generar_operacion_matematica()
             self.current_a = a
@@ -450,7 +450,7 @@ class App(tk.Tk):
             DESACIERTOS += 1
             self.enviar_resultado_uart(False)
             self.lbl_operacion.config(foreground="#ef5350")
-            messagebox.showerror("Incorrecto ❌", f"La IA detectó el número {numero_detectado}.\nEl resultado correcto era: {self.current_result}")
+            messagebox.showerror("Incorrecto", f"La IA detectó el número {numero_detectado}.\nEl resultado correcto era: {self.current_result}")
             
         self.lbl_stats_modo1.config(text=f"Aciertos: {self.modo1_aciertos}  |  Errores: {self.modo1_errores}")
 
@@ -473,13 +473,13 @@ class App(tk.Tk):
         directorio_actual = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(directorio_actual, "formas.onnx")
         
-        print(f"📦 Forzando la carga de: {model_path}")
+        print(f"Forzando la carga de: {model_path}")
         try:
             self.yolo_model = YOLO(model_path, task="detect")
-            print(f"🔍 VERIFICACIÓN DE CLASES: {self.yolo_model.names}")
+            print(f"VERIFICACIÓN DE CLASES: {self.yolo_model.names}")
             return self.yolo_model
         except Exception as e:
-            print(f"❌ Error al cargar el ONNX: {e}")
+            print(f"Error al cargar el ONNX: {e}")
             return None
 
     def nuevo_reto_modo2(self, Invisalign=False):
@@ -530,7 +530,7 @@ class App(tk.Tk):
                     self.conteos_modo2['cross'] += 1
                     
         except Exception as e:
-            print(f"❌ Error detallado en predicción Modo 2: {e}")
+            print(f" Error detallado en predicción Modo 2: {e}")
             messagebox.showerror("Error de Inferencia", f"No se pudo analizar la imagen con la IA: {e}")
             self.volver_al_menu_desde_modo2()
             return
@@ -615,7 +615,7 @@ class App(tk.Tk):
         
         self.mostrar_imagen_original_modo2()
         
-        btn_nuevo = ttk.Button(left_frame, text="Siguiente Imagen ➡️", style="Secundario.TButton", command=lambda: self.nuevo_reto_modo2(Invisalign=False))
+        btn_nuevo = ttk.Button(left_frame, text="Siguiente Imagen", style="Secundario.TButton", command=lambda: self.nuevo_reto_modo2(Invisalign=False))
         btn_nuevo.pack(pady=10)
         
         right_frame = ttk.Frame(self.card_modo2, style="Card.TFrame")
@@ -627,10 +627,10 @@ class App(tk.Tk):
         btn_frame_m2 = ttk.Frame(right_frame, style="Card.TFrame")
         btn_frame_m2.pack(pady=5)
         
-        btn_camara = ttk.Button(btn_frame_m2, text="Capturar Pizarra 📸", style="TButton", command=self.evaluar_conteo_camara)
+        btn_camara = ttk.Button(btn_frame_m2, text="Capturar Pizarra", style="TButton", command=self.evaluar_conteo_camara)
         btn_camara.pack(side="left", padx=5)
         
-        btn_archivo = ttk.Button(btn_frame_m2, text="Cargar Archivo 📁", style="Secundario.TButton", command=self.seleccionar_imagen_evaluar_modo2)
+        btn_archivo = ttk.Button(btn_frame_m2, text="Cargar Archivo", style="Secundario.TButton", command=self.seleccionar_imagen_evaluar_modo2)
         btn_archivo.pack(side="left", padx=5)
         
         self.lbl_pizarra_modo2 = ttk.Label(right_frame, background="#282830", text="[Iniciando transmisión de cámara...]", foreground="#8a8a95", font=("Helvetica", 11, "italic"), anchor="center")
@@ -708,13 +708,13 @@ class App(tk.Tk):
             self.modo2_aciertos += 1
             ACIERTOS += 1  # Suma previa antes del UART
             self.enviar_resultado_uart(True)
-            messagebox.showinfo("¡Correcto! 🎉", f"La IA detectó el número {numero_detectado} en la pizarra.\n¡Respuesta correcta!")
+            messagebox.showinfo("¡Correcto!", f"La IA detectó el número {numero_detectado} en la pizarra.\n¡Respuesta correcta!")
             self.mostrar_imagen_deteccion_modo2()
         else:
             self.modo2_errores += 1
             DESACIERTOS += 1
             self.enviar_resultado_uart(False)
-            messagebox.showerror("Incorrecto ❌", f"La IA detectó el número {numero_detectado}.\nEl conteo esperado era: {self.respuesta_correcta_modo2}")
+            messagebox.showerror("Incorrecto", f"La IA detectó el número {numero_detectado}.\nEl conteo esperado era: {self.respuesta_correcta_modo2}")
             self.mostrar_imagen_deteccion_modo2()
             
         self.lbl_stats_modo2.config(text=f"Aciertos: {self.modo2_aciertos}  |  Errores: {self.modo2_errores}")
@@ -736,13 +736,13 @@ class App(tk.Tk):
             self.modo2_aciertos += 1
             ACIERTOS += 1
             self.enviar_resultado_uart(True)
-            messagebox.showinfo("¡Correcto! 🎉", "¡Excelente conteo! Tu respuesta es correcta.")
+            messagebox.showinfo("¡Correcto!", "¡Excelente conteo! Tu respuesta es correcta.")
             self.mostrar_imagen_deteccion_modo2()
         else:
             self.modo2_errores += 1
             DESACIERTOS += 1
             self.enviar_resultado_uart(False)
-            messagebox.showerror("Incorrecto ❌", f"Respuesta incorrecta.\nEl conteo correcto era: {self.respuesta_correcta_modo2}")
+            messagebox.showerror("Incorrecto", f"Respuesta incorrecta.\nEl conteo correcto era: {self.respuesta_correcta_modo2}")
             self.mostrar_imagen_deteccion_modo2()
             
         self.lbl_stats_modo2.config(text=f"Aciertos: {self.modo2_aciertos}  |  Errores: {self.modo2_errores}")
